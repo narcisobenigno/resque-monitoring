@@ -2,6 +2,7 @@ require "resque/monitoring/version"
 
 module Resque
   module Monitoring
-    # Your code goes here...
+    require 'active_support/core_ext'
+    require 'resque/monitoring/scheduler'
   end
 end
