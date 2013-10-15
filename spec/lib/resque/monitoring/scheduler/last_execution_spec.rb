@@ -22,7 +22,7 @@ describe Resque::Monitoring::Scheduler::LastExecution do
 
     context 'when there is no date' do
       before { allow(Resque.redis).to receive(:get).and_return(nil) }
-      its(:date) { should == DateTime.now }
+      its(:date) { should == DateTime.now - 30.years }
     end
   end
 end

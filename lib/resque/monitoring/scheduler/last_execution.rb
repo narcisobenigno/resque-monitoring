@@ -18,7 +18,7 @@ module Resque
         def date
           value = Resque.redis.get(key)
           return DateTime.iso8601(value) if value
-          DateTime.now
+          DateTime.now - 30.years
         end
 
         private
