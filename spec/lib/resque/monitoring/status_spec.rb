@@ -27,7 +27,9 @@ describe Status do
     end
 
     context 'whether status error' do
-      before { Status.error('error').when_error { |message| error_callback.message(message) } }
+      before {
+        Status.error('error').when_error { |message| error_callback.message(message) }
+      }
       it { expect(error_callback).to have_received(:message).with('error') }
     end
   end
