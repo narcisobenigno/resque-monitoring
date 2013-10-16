@@ -20,46 +20,60 @@ describe Scheduler do
   end
 
   describe '.status' do
-    before { allow_any_instance_of(LastExecution).to receive(:date).and_return(DateTime.now) }
-    context 'when assert matches' do
-      subject {
-        class TestJob
-          extend Scheduler
-          scheduler_ok_when do |last_execution|
-            last_execution > DateTime.now - 1.second
+    context 'whether has last execution' do
+      let(:last_execution_date) { DateTime.now }
+      before { allow_any_instance_of(LastExecution).to receive(:date).and_return(last_execution_date) }
+      context 'when assert matches' do
+        subject {
+          class TestJob
+            extend Scheduler
+            scheduler_ok_when do |last_execution|
+              last_execution > DateTime.now - 1.second
+            end
           end
-        end
-      }
-      its(:status) { should == :ok }
-    end
-
-    context 'when assert not matches' do
-      subject {
-        class TestJob
-          extend Scheduler
-          scheduler_ok_when do |last_execution|
-            last_execution > DateTime.now
-          end
-        end
-      }
-      its(:status) { should == :error }
-    end
-
-    context 'uses 15 minutes ago as default assert' do
-      subject {
-        class TestJob
-          extend Scheduler
-        end
-      }
-      context 'last execution >= 15 minutes ago' do
-        before { allow_any_instance_of(LastExecution).to receive(:date).and_return(DateTime.now - 15.minutes) }
-        its(:status) { should == :ok }
+        }
+        its(:status) { should == Status.ok }
       end
 
-      context 'last execution < 50 minutes ago' do
-        before { allow_any_instance_of(LastExecution).to receive(:date).and_return(DateTime.now - 15.minutes - 1.second) }
-        its(:status) { should == :error }
+      context 'when assert not matches' do
+        subject {
+          class TestJob
+            extend Scheduler
+            scheduler_ok_when do |last_execution|
+              last_execution > DateTime.now
+            end
+          end
+        }
+        its(:status) { should == Status.error("executed a long time ago, last execution: #{last_execution_date}") }
       end
+
+      context 'uses 15 minutes ago as default assert' do
+        subject {
+          class TestJob
+            extend Scheduler
+          end
+        }
+        context 'last execution >= 15 minutes ago' do
+          before { allow_any_instance_of(LastExecution).to receive(:date).and_return(DateTime.now - 15.minutes) }
+          its(:status) { should == Status.ok }
+        end
+
+        context 'last execution before 15 minutes ago' do
+          let(:last_execution_date) { DateTime.now - 15.minutes - 1.second }
+          before { allow_any_instance_of(LastExecution).to receive(:date).and_return(last_execution_date) }
+          its(:status) { should == Status.error("executed a long time ago, last execution: #{last_execution_date}") }
+        end
+      end
+    end
+
+    context 'when there is no last execution' do
+      before { allow_any_instance_of(LastExecution).to receive(:date).and_return(nil) }
+       subject {
+        class TestJob
+          extend Scheduler
+        end
+      }
+      its(:status) { should == Status.error('not executed yet') }
     end
   end
 
