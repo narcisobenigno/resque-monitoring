@@ -21,15 +21,15 @@ Or install it yourself:
 ### Monitoring resque-scheduler
 Extend your scheduled job with Resque::Monitoring::Scheduler, like this:
 
-  class MyScheduledJob
-    extend Resque::Monitoring::Scheduler
-  end
+    class MyScheduledJob
+      extend Resque::Monitoring::Scheduler
+    end
 
 Now you can check if scheduler is ok with the api below:
 
-  MyScheduledJob.status.when_error do |message|
-    # This block will be called if, and only if there is an error.
-  end
+    MyScheduledJob.status.when_error do |message|
+      # This block will be called if, and only if there is an error.
+    end
 
 The possible errors are:
 
@@ -38,12 +38,12 @@ The possible errors are:
 
 You can customize the time limit since last execution:
 
-  class MyScheduledJob
-    extend Resque::Monitoring::Scheduler
-    scheduler_ok_when do |last_execution|
-      last_execution > 30.minutes.ago # the job will be qualified as healthy when the last execution was performed at most 30 minutes ago.
+    class MyScheduledJob
+      extend Resque::Monitoring::Scheduler
+      scheduler_ok_when do |last_execution|
+        last_execution > 30.minutes.ago # the job will be qualified as healthy when the last execution was performed at most 30 minutes ago.
+      end
     end
-  end
 
 ## Contributing
 
